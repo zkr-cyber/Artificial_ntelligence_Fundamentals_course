@@ -1,0 +1,123 @@
+# YOLO分割模型训练配置示例
+# 使用方法: python scripts/train_improved.py @configs/training_configs.yaml
+
+# ====================================================================
+# 基础配置（推荐用于快速实验）
+# ====================================================================
+basic:
+  data: configs/ma_seg_all.yaml
+  model: yolo11n-seg.pt
+  epochs: 100
+  batch: 16
+  imgsz: 640
+  device: mps
+  patience: 30
+
+# ====================================================================
+# 高性能配置（推荐用于最佳结果）
+# ====================================================================
+high_performance:
+  data: configs/ma_seg_all.yaml
+  model: yolo11n-seg.pt
+  epochs: 300
+  batch: 16
+  imgsz: 640
+  device: mps
+  
+  # 优化器
+  optimizer: AdamW
+  lr0: 0.001
+  lrf: 0.01
+  weight_decay: 0.0005
+  warmup_epochs: 5.0
+  
+  # 数据增强
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 10.0
+  translate: 0.1
+  scale: 0.5
+  fliplr: 0.5
+  flipud: 0.2
+  mosaic: 1.0
+  mixup: 0.1
+  
+  # 训练策略
+  patience: 50
+  close_mosaic: 20
+  
+# ====================================================================
+# 医学图像专用配置（针对MA数据集优化）
+# ====================================================================
+medical_optimized:
+  data: configs/ma_seg_all.yaml
+  model: yolo11n-seg.pt
+  epochs: 300
+  batch: 16
+  imgsz: 640
+  device: mps
+  
+  # 优化器 - 医学图像通常需要更稳定的训练
+  optimizer: AdamW
+  lr0: 0.0005  # 较低的学习率
+  lrf: 0.01
+  weight_decay: 0.001
+  warmup_epochs: 10.0  # 更长的预热期
+  
+  # 数据增强 - 医学图像需要谨慎增强
+  hsv_h: 0.01  # 减少色调变化
+  hsv_s: 0.5   # 减少饱和度变化
+  hsv_v: 0.3   # 减少明度变化
+  degrees: 5.0 # 小角度旋转
+  translate: 0.05
+  scale: 0.3
+  fliplr: 0.5
+  flipud: 0.5  # 医学图像可以上下翻转
+  mosaic: 0.8  # 减少mosaic强度
+  mixup: 0.0   # 医学图像不建议使用mixup
+  copy_paste: 0.1  # 适度使用copy-paste
+  
+  # 训练策略
+  patience: 80
+  close_mosaic: 30
+  save_period: 20  # 定期保存检查点
+  
+  # 损失函数权重 - 针对小目标优化
+  box: 7.5
+  cls: 0.5
+  dfl: 1.5
+
+# ====================================================================
+# 快速测试配置（用于调试）
+# ====================================================================
+debug:
+  data: configs/ma_seg_1536x_i.yaml
+  model: yolo11n-seg.pt
+  epochs: 10
+  batch: 4
+  imgsz: 320
+  device: mps
+  patience: 5
+  fraction: 0.1  # 只使用10%的数据
+
+# ====================================================================
+# 大模型配置（如果需要更高精度）
+# ====================================================================
+large_model:
+  data: configs/ma_seg_all.yaml
+  model: yolo11l-seg.pt  # 使用大模型
+  epochs: 400
+  batch: 8  # 减小批次以适应更大的模型
+  imgsz: 640
+  device: mps
+  
+  optimizer: AdamW
+  lr0: 0.0008
+  lrf: 0.01
+  weight_decay: 0.001
+  warmup_epochs: 10.0
+  
+  patience: 100
+  close_mosaic: 30
+

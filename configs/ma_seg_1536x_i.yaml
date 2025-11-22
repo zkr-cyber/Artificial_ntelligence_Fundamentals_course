@@ -1,0 +1,5 @@
+path: /Users/baiyu/人工智能基础/dataset/1536x/i
+train: images/train
+val: images/val
+names:
+  0: MA
